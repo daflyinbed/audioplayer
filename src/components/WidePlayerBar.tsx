@@ -7,6 +7,7 @@ import {
   Slider,
   createStyles,
   CircularProgress,
+  Fab,
 } from "@material-ui/core";
 import React, { useEffect, useRef } from "react";
 import PauseIcon from "@material-ui/icons/Pause";
@@ -16,19 +17,21 @@ import SkipNextIcon from "@material-ui/icons/SkipNext";
 import ShuffleIcon from "@material-ui/icons/Shuffle";
 import RepeatOneIcon from "@material-ui/icons/RepeatOne";
 import RepeatIcon from "@material-ui/icons/Repeat";
-import {
-  Audio,
-  AudioControl,
-  PlayerAction,
-  PlayState,
-} from "../hooks/useAudio";
 import { Grid } from "@material-ui/core";
 import { random, sec2str } from "../utils";
 import { VolControl } from "./VolControl";
 import { useSensor } from "../hooks/useSensor";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { Order, PlayOrderState } from "../atoms/order";
 import { PlaylistHelper, PlaylistState } from "../atoms/playlist";
+import {
+  AudioState,
+  HowlHelper,
+  PlayerState,
+  ProcessState,
+} from "../atoms/audio";
+import { useInterval } from "../hooks/useInterval";
+import { HowlContainer } from "../audio";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -41,92 +44,79 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
-function PlayButton(props: { audio: Audio; disabled: boolean }) {
-  const { audio, disabled } = props;
-  const { state, control } = audio;
-  switch (state) {
-    case PlayState.Loading:
+function PlayButton() {
+  const [audioState, setAudioState] = useRecoilState(AudioState);
+  switch (audioState) {
+    case PlayerState.Loading:
       return (
-        <IconButton color="inherit" disabled={disabled}>
+        <IconButton color="inherit" disabled={true}>
           <CircularProgress color="inherit" size={32} />
         </IconButton>
       );
-    case PlayState.Playing:
+    case PlayerState.Playing:
       return (
         <IconButton
           color="inherit"
-          disabled={disabled}
           onClick={() => {
-            control({ type: PlayerAction.pause });
+            // control({ type: PlayerAction.pause });
+            HowlHelper.pause();
+            setAudioState(PlayerState.Paused);
           }}
         >
           <PauseIcon />
         </IconButton>
       );
-    case PlayState.Paused:
+    case PlayerState.Paused:
       return (
         <IconButton
           color="inherit"
-          disabled={disabled}
           onClick={() => {
-            control({ type: PlayerAction.play });
+            HowlHelper.play();
+            setAudioState(PlayerState.Playing);
+            // control({ type: PlayerAction.play });
           }}
         >
           <PlayArrowIcon />
         </IconButton>
       );
-    case PlayState.Idle:
+    case PlayerState.Idle:
       return (
         <IconButton color="inherit" disabled>
           <PlayArrowIcon />
         </IconButton>
       );
-    default:
-      return (
-        <IconButton color="inherit" disabled={disabled}>
-          <PlayArrowIcon />
-        </IconButton>
-      );
   }
 }
-function PlayOrder(props: { ac: AudioControl }) {
-  const { ac } = props;
+function PlayOrder() {
   const [playOrder, setPlayOrder] = useRecoilState(PlayOrderState);
-  useSensor("AudioControl", ac);
-  /*
+  const [playlist, setPlaylist] = useRecoilState(PlaylistState);
   useEffect(() => {
-    console.log("reset cb");
-    switch (pl.order) {
+    switch (playOrder) {
       case Order.all:
-        ac({
-          type: PlayerAction.changeOnEnd,
-          cb: () => {
-            pl.control({
-              type: PlaylistAction.jump,
-              p: pl.cur + 1 < pl.list.length ? pl.cur + 1 : 0,
-            });
-          },
+        if (playlist.list.length === 1) {
+          HowlHelper.loop(true);
+          return;
+        }
+        HowlHelper.changeCB(() => {
+          setPlaylist((old) =>
+            PlaylistHelper.jump(
+              old,
+              old.cur + 1 < old.list.length ? old.cur + 1 : 0
+            )
+          );
         });
         break;
       case Order.random:
-        ac({
-          type: PlayerAction.changeOnEnd,
-          cb: () => {
-            pl.control({
-              type: PlaylistAction.jump,
-              p: random(pl.list.length),
-            });
-          },
+        HowlHelper.changeCB(() => {
+          setPlaylist((old) =>
+            PlaylistHelper.jump(old, random(old.list.length))
+          );
         });
         break;
       case Order.one:
-        ac({
-          type: PlayerAction.changeLoop,
-          isLoop: true,
-        });
+        HowlHelper.loop(true);
     }
-  }, [ac, pl]);
-  */
+  }, [playOrder, setPlaylist, playlist]);
   switch (playOrder) {
     case Order.one:
       return (
@@ -166,10 +156,45 @@ function PlayOrder(props: { ac: AudioControl }) {
       );
   }
 }
-export function WidePlayerBar(props: { audio: Audio }) {
+function Process() {
+  const [process, setProcess] = useRecoilState(ProcessState);
+  useInterval(() => {
+    let howl = HowlContainer.get();
+    if (howl) {
+      setProcess(howl.seek() as number);
+    } else {
+      setProcess(0);
+    }
+  }, 500);
+  return (
+    <Typography variant="body2" color="inherit">
+      {`${sec2str(process)}/${sec2str(HowlHelper.getLen())}`}
+    </Typography>
+  );
+}
+function ProcessSlider() {
+  const [process, setProcess] = useRecoilState(ProcessState);
+  const audioState = useRecoilValue(AudioState);
+  return (
+    <Slider
+      color="secondary"
+      value={process}
+      min={0}
+      max={HowlHelper.getLen()}
+      disabled={audioState === PlayerState.Idle}
+      onChange={(_, v) => {
+        console.log(v);
+        HowlHelper.process(v as number);
+        setProcess(v as number);
+        // audio.control({ type: PlayerAction.process, process: v as number });
+      }}
+    />
+  );
+}
+export function WidePlayerBar() {
   const classes = useStyles();
   const [playlist, setPlaylist] = useRecoilState(PlaylistState);
-  let audio = props.audio;
+  const setAudioState = useSetRecoilState(AudioState);
   const prevSrcRef = useRef<null | string>(null);
   useEffect(() => {
     if (
@@ -182,12 +207,15 @@ export function WidePlayerBar(props: { audio: Audio }) {
       return;
     }
     prevSrcRef.current = playlist.list[playlist.cur].src;
-    audio.control({ type: PlayerAction.unload });
-    audio.control({
-      type: PlayerAction.load,
-      src: playlist.list[playlist.cur].src as string,
+    console.log("src changed");
+    HowlContainer.load(playlist.list[playlist.cur].src);
+    setAudioState(PlayerState.Loading);
+    HowlContainer.get()?.once("load", () => {
+      HowlContainer.get()?.play();
+      setAudioState(PlayerState.Playing);
     });
-  }, [audio, playlist.cur, playlist.list]);
+    HowlContainer.get()?.load();
+  }, [playlist.cur, playlist.list, setAudioState]);
   return (
     <Toolbar className={classes.root}>
       <IconButton
@@ -199,7 +227,7 @@ export function WidePlayerBar(props: { audio: Audio }) {
       >
         <SkipPreviousIcon />
       </IconButton>
-      <PlayButton audio={audio} disabled={playlist.list.length === 0} />
+      <PlayButton />
       <IconButton
         color="inherit"
         onClick={() => {
@@ -214,22 +242,12 @@ export function WidePlayerBar(props: { audio: Audio }) {
           <Typography variant="body2" color="inherit">
             {playlist.list[playlist.cur]?.name ?? ""}
           </Typography>
-          <Typography variant="body2" color="inherit">
-            {`${sec2str(audio.process)}/${sec2str(audio.len)}`}
-          </Typography>
+          <Process />
         </Grid>
-        <Slider
-          color="secondary"
-          value={audio.process}
-          min={0}
-          max={audio.len}
-          onChange={(_, v) => {
-            audio.control({ type: PlayerAction.process, process: v as number });
-          }}
-        />
+        <ProcessSlider />
       </Grid>
-      <VolControl audio={audio} />
-      <PlayOrder ac={audio.control} />
+      <VolControl />
+      <PlayOrder />
     </Toolbar>
   );
 }

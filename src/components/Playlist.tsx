@@ -22,7 +22,8 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 import GetAppIcon from "@material-ui/icons/GetApp";
 import React from "react";
 import { useMenu } from "../hooks/useMenu";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { DownloadListHelper, DownloadListState } from "../atoms/downloadList";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -77,6 +78,7 @@ function Row(props: ListChildComponentProps) {
 }
 export function Playlist() {
   const [playlist, setPlaylist] = useRecoilState(PlaylistState);
+  const setDownloadListState = useSetRecoilState(DownloadListState);
   const classes = useStyles();
   const theme = useTheme();
   const lg = useMediaQuery(theme.breakpoints.up("lg"));
@@ -88,7 +90,6 @@ export function Playlist() {
     open,
     close,
   } = useMenu();
-  // console.log("playlist", playlist.list);
   return (
     <div className={classes.root}>
       <AutoSizer>
@@ -140,7 +141,15 @@ export function Playlist() {
         ) : null}
         <MenuItem
           onClick={(e) => {
-            //TODO
+            if (
+              menuState.index == null ||
+              playlist.list[menuState.index] == null
+            ) {
+              return;
+            }
+            setDownloadListState((old) =>
+              DownloadListHelper.add(old, playlist.list[menuState.index])
+            );
           }}
         >
           <ListItemIcon>

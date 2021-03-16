@@ -1,4 +1,3 @@
-import { Audio, PlayerAction } from "../hooks/useAudio";
 import VolumeOffIcon from "@material-ui/icons/VolumeOff";
 import VolumeMuteIcon from "@material-ui/icons/VolumeMute";
 import VolumeUpIcon from "@material-ui/icons/VolumeUp";
@@ -10,6 +9,8 @@ import {
   Slider,
   Theme,
 } from "@material-ui/core";
+import { useRecoilState } from "recoil";
+import { VolState, MuteState,HowlHelper } from "../atoms/audio";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     volume: {
@@ -18,20 +19,23 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
-export function VolControl(props: { audio: Audio }) {
+export function VolControl() {
   const classes = useStyles();
-  const { audio } = props;
+  const [volState, setVolState] = useRecoilState(VolState);
+  const [muteState, setMuteState] = useRecoilState(MuteState);
   return (
     <>
       <IconButton
         color="inherit"
         onClick={() => {
-          audio.control({ type: PlayerAction.changeMute });
+          HowlHelper.mute(!muteState);
+          setMuteState((old) => !old);
+          // audio.control({ type: PlayerAction.changeMute });
         }}
       >
-        {audio.mute ? (
+        {muteState ? (
           <VolumeMuteIcon />
-        ) : audio.vol === 0 ? (
+        ) : volState === 0 ? (
           <VolumeOffIcon />
         ) : (
           <VolumeUpIcon />
@@ -40,15 +44,16 @@ export function VolControl(props: { audio: Audio }) {
       <Slider
         color="secondary"
         className={classes.volume}
-        value={audio.vol}
+        value={volState}
         valueLabelDisplay="auto"
-        disabled={audio.mute}
+        disabled={muteState}
         min={0}
         max={100}
         step={1}
         onChange={(_, v) => {
-          console.log(v);
-          audio.control({ type: PlayerAction.changeVol, vol: v as number });
+          HowlHelper.vol(v as number);
+          setVolState(v as number);
+          // audio.control({ type: PlayerAction.changeVol, vol: v as number });
         }}
       />
     </>

@@ -1,6 +1,7 @@
 import {
   Checkbox,
   createStyles,
+  Fab,
   fade,
   FormControlLabel,
   Grid,
@@ -11,7 +12,7 @@ import { makeStyles } from "@material-ui/core";
 import { AppBar, CssBaseline, Toolbar } from "@material-ui/core";
 import SearchIcon from "@material-ui/icons/Search";
 
-import { useAudio } from "./hooks/useAudio";
+// import { useAudio } from "./hooks/useAudio";
 import React, { useCallback, useEffect, useState } from "react";
 import { WidePlayerBar } from "./components/WidePlayerBar";
 import { matchSorter } from "match-sorter";
@@ -19,6 +20,7 @@ import { useDebounce } from "./hooks/useDebounce ";
 import { SearchList } from "./components/SearchList";
 import { Playlist } from "./components/Playlist";
 import { useSensor } from "./hooks/useSensor";
+import GetAppIcon from "@material-ui/icons/GetApp";
 const useStyles = makeStyles((theme: Theme) => {
   return createStyles({
     toolbar: {
@@ -71,6 +73,13 @@ const useStyles = makeStyles((theme: Theme) => {
       marginLeft: 0,
       flexShrink: 0,
     },
+    fabButton: {
+      position: "absolute",
+      zIndex: 1,
+      bottom: theme.spacing(8),
+      right: theme.spacing(4),
+      margin: "0 auto",
+    },
   });
 });
 interface Props {
@@ -79,7 +88,6 @@ interface Props {
 function App(props: Props) {
   const classes = useStyles();
   console.log("re render");
-  const audio = useAudio();
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState<string[]>([]);
   const [isFuzzy, setIsFuzzy] = useState(false);
@@ -149,8 +157,11 @@ function App(props: Props) {
       </Grid>
       <Toolbar />
       <AppBar position="fixed" className={classes.bottomAppBar}>
-        <WidePlayerBar audio={audio} />
+        <WidePlayerBar />
       </AppBar>
+      <Fab className={classes.fabButton}>
+        <GetAppIcon />
+      </Fab>
     </div>
   );
 }

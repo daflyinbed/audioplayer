@@ -5,7 +5,7 @@ interface playlistState {
   list: AudioMeta[];
   cur: number;
 }
-interface AudioMeta {
+export interface AudioMeta {
   name: string;
   src: string;
 }
@@ -58,6 +58,7 @@ function remove(old: playlistState, p: number): playlistState {
   return { list: arr, cur };
 }
 function jump(old: playlistState, p: number): playlistState {
+  console.log("jump",p);
   return {
     ...old,
     cur: p,
