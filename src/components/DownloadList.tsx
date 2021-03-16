@@ -18,7 +18,9 @@ function Row(props: ListChildComponentProps) {
   const { index } = props;
   return (
     <ListItem>
-      <ListItemText>{downloadListState.list[index].name}</ListItemText>
+      <ListItemText primaryTypographyProps={{ variant: "body2" }}>
+        {downloadListState.list[index].name}
+      </ListItemText>
       <ListItemSecondaryAction>
         <IconButton
           onClick={() => {

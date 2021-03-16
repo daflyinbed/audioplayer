@@ -1,6 +1,7 @@
 import {
   Checkbox,
   createStyles,
+  Dialog,
   Fab,
   fade,
   FormControlLabel,
@@ -21,6 +22,7 @@ import { SearchList } from "./components/SearchList";
 import { Playlist } from "./components/Playlist";
 import { useSensor } from "./hooks/useSensor";
 import GetAppIcon from "@material-ui/icons/GetApp";
+import { DownloadList } from "./components/DownloadList";
 const useStyles = makeStyles((theme: Theme) => {
   return createStyles({
     toolbar: {
@@ -80,6 +82,9 @@ const useStyles = makeStyles((theme: Theme) => {
       right: theme.spacing(4),
       margin: "0 auto",
     },
+    dialog: {
+      height: "100%",
+    },
   });
 });
 interface Props {
@@ -91,6 +96,7 @@ function App(props: Props) {
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState<string[]>([]);
   const [isFuzzy, setIsFuzzy] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   const searchCB = useCallback(() => {
     if (isFuzzy) {
       console.log("fuzzy search", search);
@@ -159,9 +165,27 @@ function App(props: Props) {
       <AppBar position="fixed" className={classes.bottomAppBar}>
         <WidePlayerBar />
       </AppBar>
-      <Fab className={classes.fabButton}>
+      <Fab
+        className={classes.fabButton}
+        onClick={() => {
+          setOpenDialog(true);
+        }}
+      >
         <GetAppIcon />
       </Fab>
+      <Dialog
+        onClose={() => {
+          setOpenDialog(false);
+        }}
+        fullWidth
+        maxWidth="md"
+        aria-labelledby="simple-dialog-title"
+        open={openDialog}
+        classes={{ paper: classes.dialog }}
+        className={classes.dialog}
+      >
+        <DownloadList />
+      </Dialog>
     </div>
   );
 }

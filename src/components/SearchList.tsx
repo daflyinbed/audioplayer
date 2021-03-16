@@ -22,6 +22,8 @@ import AddIcon from "@material-ui/icons/Add";
 import { useMenu } from "../hooks/useMenu";
 import { useSetRecoilState } from "recoil";
 import { PlaylistHelper, PlaylistState } from "../atoms/playlist";
+import { DownloadListHelper, DownloadListState } from "../atoms/downloadList";
+import { buildSrc } from "../utils";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -80,6 +82,7 @@ export function SearchList(props: { list: string[] }) {
   const classes = useStyles();
   const { list } = props;
   const setPlaylist = useSetRecoilState(PlaylistState);
+  const setDownloadListState = useSetRecoilState(DownloadListState);
   const {
     states: [menuState],
     open,
@@ -159,7 +162,16 @@ export function SearchList(props: { list: string[] }) {
         </MenuItem>
         <MenuItem
           onClick={(e) => {
-            //TODO
+            close();
+            if (menuState.index == null || list[menuState.index] == null) {
+              return;
+            }
+            setDownloadListState((old) =>
+              DownloadListHelper.add(old, {
+                name: list[menuState.index],
+                src: buildSrc(list[menuState.index]),
+              })
+            );
           }}
         >
           <ListItemIcon>

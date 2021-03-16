@@ -141,6 +141,7 @@ export function Playlist() {
         ) : null}
         <MenuItem
           onClick={(e) => {
+            close();
             if (
               menuState.index == null ||
               playlist.list[menuState.index] == null
