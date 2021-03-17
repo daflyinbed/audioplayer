@@ -6,7 +6,10 @@ import {
   fade,
   FormControlLabel,
   Grid,
+  IconButton,
   InputBase,
+  Menu,
+  MenuItem,
   Theme,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core";
@@ -21,8 +24,10 @@ import { useDebounce } from "./hooks/useDebounce ";
 import { SearchList } from "./components/SearchList";
 import { Playlist } from "./components/Playlist";
 import { useSensor } from "./hooks/useSensor";
-import GetAppIcon from "@material-ui/icons/GetApp";
-import { DownloadList } from "./components/DownloadList";
+import MoreVertIcon from "@material-ui/icons/MoreVert";
+import { useMenu } from "./hooks/useMenu";
+// import GetAppIcon from "@material-ui/icons/GetApp";
+// import { DownloadList } from "./components/DownloadList";
 const useStyles = makeStyles((theme: Theme) => {
   return createStyles({
     toolbar: {
@@ -75,38 +80,48 @@ const useStyles = makeStyles((theme: Theme) => {
       marginLeft: 0,
       flexShrink: 0,
     },
-    fabButton: {
-      position: "absolute",
-      zIndex: 1,
-      bottom: theme.spacing(8),
-      right: theme.spacing(4),
-      margin: "0 auto",
-    },
-    dialog: {
-      height: "100%",
-    },
+    // fabButton: {
+    //   position: "absolute",
+    //   zIndex: 1,
+    //   bottom: theme.spacing(8),
+    //   right: theme.spacing(4),
+    //   margin: "0 auto",
+    // },
+    // dialog: {
+    //   height: "100%",
+    // },
   });
 });
-interface Props {
-  data: string[];
-}
-function App(props: Props) {
+
+function App(props: { data: string[] }) {
   const classes = useStyles();
   console.log("re render");
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState<string[]>([]);
   const [isFuzzy, setIsFuzzy] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false);
+  const [isCaseSen, setIsCaseSen] = useState(false);
+  const {
+    states: [filterMenuState],
+    open: openFilterMenu,
+    close: closeFilterMenu,
+  } = useMenu();
+  // const [openDialog, setOpenDialog] = useState(false);
   const searchCB = useCallback(() => {
     if (isFuzzy) {
       console.log("fuzzy search", search);
       setSearchResult(matchSorter(props.data, search));
     } else {
       console.log("search", search);
-      setSearchResult(props.data.filter((v) => v.includes(search)));
+      if (isCaseSen) {
+        setSearchResult(props.data.filter((v) => v.includes(search)));
+      } else {
+        setSearchResult(
+          props.data.filter((v) => v.toLowerCase().includes(search.toLowerCase()))
+        );
+      }
     }
-  }, [props.data, search, isFuzzy]);
-  const calc = useDebounce(searchCB, 1000);
+  }, [props.data, search, isFuzzy, isCaseSen]);
+  const calc = useDebounce(searchCB, 600);
   useEffect(() => {
     setSearchResult(props.data);
   }, [props.data]);
@@ -136,6 +151,38 @@ function App(props: Props) {
               }}
             />
           </div>
+          <IconButton
+            color="inherit"
+            onClick={(e) => {
+              openFilterMenu(e.currentTarget, -1);
+            }}
+          >
+            <MoreVertIcon />
+          </IconButton>
+        </Toolbar>
+      </AppBar>
+      <Toolbar />
+      <Grid container className={classes.container}>
+        <Grid md={6} xs={12} item className={classes.list}>
+          <SearchList list={searchResult} len={props.data.length} />
+        </Grid>
+        <Grid md={6} xs={12} item className={classes.list}>
+          <Playlist />
+        </Grid>
+      </Grid>
+      <Toolbar />
+      <AppBar position="fixed" className={classes.bottomAppBar}>
+        <WidePlayerBar />
+      </AppBar>
+      <Menu
+        anchorEl={filterMenuState.anchor}
+        keepMounted
+        open={!!filterMenuState.anchor}
+        onClose={() => {
+          closeFilterMenu();
+        }}
+      >
+        <MenuItem>
           <FormControlLabel
             label="模糊"
             classes={{ root: classes.checkboxLabel }}
@@ -150,22 +197,26 @@ function App(props: Props) {
               />
             }
           ></FormControlLabel>
-        </Toolbar>
-      </AppBar>
-      <Toolbar />
-      <Grid container className={classes.container}>
-        <Grid md={6} xs={12} item className={classes.list}>
-          <SearchList list={searchResult} />
-        </Grid>
-        <Grid md={6} xs={12} item className={classes.list}>
-          <Playlist />
-        </Grid>
-      </Grid>
-      <Toolbar />
-      <AppBar position="fixed" className={classes.bottomAppBar}>
-        <WidePlayerBar />
-      </AppBar>
-      <Fab
+        </MenuItem>
+        <MenuItem>
+          <FormControlLabel
+            label="大小写敏感"
+            classes={{ root: classes.checkboxLabel }}
+            disabled={isFuzzy}
+            control={
+              <Checkbox
+                checked={isFuzzy ? isFuzzy : isCaseSen}
+                classes={{ root: classes.checkbox }}
+                onChange={(_, checked) => {
+                  setIsCaseSen(checked);
+                }}
+                color="secondary"
+              />
+            }
+          ></FormControlLabel>
+        </MenuItem>
+      </Menu>
+      {/* <Fab
         className={classes.fabButton}
         onClick={() => {
           setOpenDialog(true);
@@ -185,7 +236,7 @@ function App(props: Props) {
         className={classes.dialog}
       >
         <DownloadList />
-      </Dialog>
+      </Dialog> */}
     </div>
   );
 }

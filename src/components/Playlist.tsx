@@ -22,8 +22,9 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 import GetAppIcon from "@material-ui/icons/GetApp";
 import React from "react";
 import { useMenu } from "../hooks/useMenu";
-import { useRecoilState, useSetRecoilState } from "recoil";
-import { DownloadListHelper, DownloadListState } from "../atoms/downloadList";
+import { useRecoilState } from "recoil";
+// import { DownloadListHelper, DownloadListState } from "../atoms/downloadList";
+import { download } from "../utils";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -78,7 +79,7 @@ function Row(props: ListChildComponentProps) {
 }
 export function Playlist() {
   const [playlist, setPlaylist] = useRecoilState(PlaylistState);
-  const setDownloadListState = useSetRecoilState(DownloadListState);
+  // const setDownloadListState = useSetRecoilState(DownloadListState);
   const classes = useStyles();
   const theme = useTheme();
   const lg = useMediaQuery(theme.breakpoints.up("lg"));
@@ -148,9 +149,10 @@ export function Playlist() {
             ) {
               return;
             }
-            setDownloadListState((old) =>
-              DownloadListHelper.add(old, playlist.list[menuState.index])
-            );
+            download(playlist.list[menuState.index].name);
+            // setDownloadListState((old) =>
+            //   DownloadListHelper.add(old, playlist.list[menuState.index])
+            // );
           }}
         >
           <ListItemIcon>

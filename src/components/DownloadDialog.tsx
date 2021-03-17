@@ -1,5 +1,5 @@
 import { useRecoilState, useRecoilValue } from "recoil";
-import { DownloadListState, DownloadListHelper } from "../atoms/downloadList";
+import { DownloadListState } from "../atoms/downloadList";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeList, ListChildComponentProps } from "react-window";
 import ClearIcon from "@material-ui/icons/Clear";
@@ -19,30 +19,19 @@ function Row(props: ListChildComponentProps) {
   return (
     <ListItem>
       <ListItemText primaryTypographyProps={{ variant: "body2" }}>
-        {downloadListState.list[index].name}
+        {downloadListState[index]}
       </ListItemText>
-      <ListItemSecondaryAction>
-        <IconButton
-          onClick={() => {
-            setDownloadListState((old) =>
-              DownloadListHelper.remove(old, index)
-            );
-          }}
-        >
-          <ClearIcon />
-        </IconButton>
-      </ListItemSecondaryAction>
     </ListItem>
   );
 }
-export function DownloadList() {
+function DownloadList() {
   const downloadListState = useRecoilValue(DownloadListState);
   return (
     <AutoSizer>
       {({ height, width }) => (
         <FixedSizeList
           itemSize={48}
-          itemCount={downloadListState.list.length}
+          itemCount={downloadListState.length}
           height={height}
           width={width}
           outerElementType={List}
@@ -54,3 +43,6 @@ export function DownloadList() {
     </AutoSizer>
   );
 }
+export {};
+
+export function DownloadDialog() {}

@@ -19,3 +19,20 @@ export function random(max: number) {
   console.log("random", result);
   return result;
 }
+export function download(name: string) {
+  let ele = document.createElement("a");
+  ele.setAttribute("href", buildSrc(name));
+  ele.setAttribute("download", "download");
+  ele.click();
+  ele.remove();
+}
+export function downloadAll(names: string[]) {
+  let index = 0;
+  const interval = setInterval(() => {
+    download(names[index]);
+    index++;
+    if (index >= names.length) {
+      clearInterval(interval);
+    }
+  }, 100);
+}
