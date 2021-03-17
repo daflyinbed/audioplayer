@@ -26,6 +26,7 @@ import { Playlist } from "./components/Playlist";
 import { useSensor } from "./hooks/useSensor";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { useMenu } from "./hooks/useMenu";
+import { DownloadDialog } from "./components/DownloadDialog";
 // import GetAppIcon from "@material-ui/icons/GetApp";
 // import { DownloadList } from "./components/DownloadList";
 const useStyles = makeStyles((theme: Theme) => {
@@ -116,7 +117,9 @@ function App(props: { data: string[] }) {
         setSearchResult(props.data.filter((v) => v.includes(search)));
       } else {
         setSearchResult(
-          props.data.filter((v) => v.toLowerCase().includes(search.toLowerCase()))
+          props.data.filter((v) =>
+            v.toLowerCase().includes(search.toLowerCase())
+          )
         );
       }
     }
@@ -237,6 +240,7 @@ function App(props: { data: string[] }) {
       >
         <DownloadList />
       </Dialog> */}
+      <DownloadDialog />
     </div>
   );
 }

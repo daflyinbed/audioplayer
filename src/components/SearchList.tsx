@@ -28,9 +28,9 @@ import { useMenu } from "../hooks/useMenu";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { PlaylistHelper, PlaylistState } from "../atoms/playlist";
 // import { DownloadListHelper, DownloadListState } from "../atoms/downloadList";
-import { download } from "../utils";
+import { download, downloadAll } from "../utils";
 import { BatchSearchSet } from "../atoms/batchlist";
-import { DownloadListState } from "../atoms/downloadList";
+import { DownloadListState, DownloadListOpen } from "../atoms/downloadList";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -110,6 +110,7 @@ export function SearchList(props: { list: string[]; len: number }) {
   const [batch, setBatch] = useState(false);
   const [batchSet, setBatchSet] = useRecoilState(BatchSearchSet);
   const setDownloadList = useSetRecoilState(DownloadListState);
+  const setDownloadListOpen = useSetRecoilState(DownloadListOpen);
   // const setDownloadListState = useSetRecoilState(DownloadListState);
   const {
     states: [menuState],
@@ -176,27 +177,18 @@ export function SearchList(props: { list: string[]; len: number }) {
             >
               <Button
                 onClick={() => {
-                  // if (batchSet.size > 1) {
-                  //   setDownloadList((old) => {
-                  //     let arr = [...old];
-                  //     batchSet.forEach((v) => {
-                  //       arr.push(list[v]);
-                  //     });
-                  //     return Array.from(new Set(arr));
-                  //   });
-                  // } else {
-                  console.log(batchSet.size);
-                  let arr = Array.from(batchSet);
-                  let index = 0;
-                  const interval = setInterval(() => {
-                    download(list[arr[index]]);
-                    index++;
-                  }, 100);
-                  // batchSet.forEach((v) => {
-                  //   console.log(list[v]);
-                  //   download(list[v]);
-                  // });
-                  // }
+                  if (batchSet.size > 5) {
+                    setDownloadListOpen(true);
+                    setDownloadList((old) => {
+                      let arr = [
+                        ...old,
+                        ...Array.from(batchSet).map((v) => list[v]),
+                      ];
+                      return Array.from(new Set(arr));
+                    });
+                  } else {
+                    downloadAll(Array.from(batchSet).map((v) => list[v]));
+                  }
                 }}
               >
                 下载

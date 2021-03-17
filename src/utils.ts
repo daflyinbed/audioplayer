@@ -34,5 +34,5 @@ export function downloadAll(names: string[]) {
     if (index >= names.length) {
       clearInterval(interval);
     }
-  }, 100);
+  }, 1000);
 }
