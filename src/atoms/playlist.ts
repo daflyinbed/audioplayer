@@ -52,13 +52,28 @@ function remove(old: playlistState, p: number): playlistState {
   let { cur } = old;
   let arr = [...old.list];
   arr.splice(p, 1);
-  if (p < cur) {
+  if (p <= cur) {
     cur--;
   }
   return { list: arr, cur };
 }
+function removeAll(old: playlistState, p: Set<number>): playlistState {
+  let { cur } = old;
+  let offset = 0;
+  let arr = old.list.filter((v, i) => {
+    let has = p.has(i);
+    if (has && i <= cur) {
+      offset++;
+    }
+    return !has;
+  });
+  return {
+    list: arr,
+    cur: cur - offset,
+  };
+}
 function jump(old: playlistState, p: number): playlistState {
-  console.log("jump",p);
+  console.log("jump", p);
   return {
     ...old,
     cur: p,
@@ -84,5 +99,13 @@ function insertAndJump(
     };
   }
 }
-const PlaylistHelper = { remove, jump, prev, next, insert, insertAndJump };
+const PlaylistHelper = {
+  remove,
+  removeAll,
+  jump,
+  prev,
+  next,
+  insert,
+  insertAndJump,
+};
 export { PlaylistState, PlaylistHelper };

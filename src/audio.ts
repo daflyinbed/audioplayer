@@ -1,4 +1,4 @@
-import { Howl, Howler } from "howler";
+import { Howl } from "howler";
 
 export class HowlContainer {
   private static howler: Howl | undefined;
@@ -11,5 +11,9 @@ export class HowlContainer {
   }
   public static get() {
     return this.howler;
+  }
+  public static unload() {
+    HowlContainer.howler?.unload();
+    HowlContainer.howler = undefined;
   }
 }

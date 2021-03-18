@@ -1,5 +1,9 @@
 import {
+  Button,
+  ButtonGroup,
+  Checkbox,
   createStyles,
+  FormControlLabel,
   IconButton,
   List,
   ListItem,
@@ -10,6 +14,7 @@ import {
   Menu,
   MenuItem,
   Theme,
+  Toolbar,
   Typography,
   useMediaQuery,
   useTheme,
@@ -20,11 +25,15 @@ import { FixedSizeList, ListChildComponentProps } from "react-window";
 import ClearIcon from "@material-ui/icons/Clear";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import GetAppIcon from "@material-ui/icons/GetApp";
-import React from "react";
+import React, { useState } from "react";
 import { useMenu } from "../hooks/useMenu";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 // import { DownloadListHelper, DownloadListState } from "../atoms/downloadList";
-import { download } from "../utils";
+import { download, downloadAll } from "../utils";
+import { AudioState, PlayerState } from "../atoms/audio";
+import { HowlContainer } from "../audio";
+import { BatchPlaySet } from "../atoms/batchlist";
+import { DownloadListState, DownloadListOpen } from "../atoms/downloadList";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -33,22 +42,40 @@ const useStyles = makeStyles((theme: Theme) =>
       width: "100%",
       height: "100%",
     },
+    toolbar: {
+      display: "flex",
+      justifyContent: "space-between",
+    },
   })
 );
 function Row(props: ListChildComponentProps) {
   const [playlist, setPlaylist] = useRecoilState(PlaylistState);
+  const setAudioState = useSetRecoilState(AudioState);
   const { index, style, data } = props;
+  const batch: boolean = data.batch;
+  const [batchSet, setBatchSet] = useRecoilState(BatchPlaySet);
   const size: boolean = data.size;
   const onMenuClick = data.onMenuClick;
-  // console.log("playlist size", list.length);
   return (
     <ListItem
       ContainerProps={{ style: style }}
       button
       key={index}
-      selected={playlist.cur === index}
+      selected={batch ? batch && batchSet.has(index) : playlist.cur === index}
       onClick={() => {
-        setPlaylist((old) => PlaylistHelper.jump(old, index));
+        if (batch) {
+          setBatchSet((old) => {
+            let set = new Set(old);
+            if (set.has(index)) {
+              set.delete(index);
+            } else {
+              set.add(index);
+            }
+            return set;
+          });
+        } else {
+          setPlaylist((old) => PlaylistHelper.jump(old, index));
+        }
       }}
     >
       <ListItemText
@@ -60,6 +87,10 @@ function Row(props: ListChildComponentProps) {
         {size ? (
           <IconButton
             onClick={(e) => {
+              if (index === playlist.cur) {
+                HowlContainer.unload();
+                setAudioState(PlayerState.Idle);
+              }
               setPlaylist((old) => PlaylistHelper.remove(old, index));
             }}
           >
@@ -79,9 +110,12 @@ function Row(props: ListChildComponentProps) {
 }
 export function Playlist() {
   const [playlist, setPlaylist] = useRecoilState(PlaylistState);
-  // const setDownloadListState = useSetRecoilState(DownloadListState);
   const classes = useStyles();
   const theme = useTheme();
+  const [batch, setBatch] = useState(false);
+  const [batchSet, setBatchSet] = useRecoilState(BatchPlaySet);
+  const setDownloadList = useSetRecoilState(DownloadListState);
+  const setDownloadListOpen = useSetRecoilState(DownloadListOpen);
   const lg = useMediaQuery(theme.breakpoints.up("lg"));
   const sm = useMediaQuery(theme.breakpoints.down("sm"));
   const xs = useMediaQuery(theme.breakpoints.up("sm"));
@@ -93,12 +127,98 @@ export function Playlist() {
   } = useMenu();
   return (
     <div className={classes.root}>
+      <Toolbar className={classes.toolbar}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              onClick={() => {
+                setBatch(!batch);
+              }}
+              checked={batch}
+            ></Checkbox>
+          }
+          label={
+            <Typography variant={size ? "body1" : "body2"}>批量</Typography>
+          }
+        ></FormControlLabel>
+        {batch ? (
+          <>
+            <ButtonGroup
+              size={size ? "small" : "medium"}
+              variant="text"
+              color="primary"
+              aria-label="text primary button group"
+            >
+              <Button
+                onClick={() => {
+                  let set = new Set<number>();
+                  playlist.list.forEach((v, i) => {
+                    set.add(i);
+                  });
+                  setBatchSet(set);
+                }}
+              >
+                全选
+              </Button>
+              <Button
+                onClick={() => {
+                  setBatchSet(new Set());
+                }}
+              >
+                清除
+              </Button>
+            </ButtonGroup>
+            <ButtonGroup
+              size={size ? "small" : "medium"}
+              variant="text"
+              color="primary"
+            >
+              <Button
+                onClick={() => {
+                  if (batchSet.size > 5) {
+                    setDownloadListOpen(true);
+                    setDownloadList((old) =>
+                      Array.from(
+                        new Set([
+                          ...old,
+                          ...Array.from(batchSet).map(
+                            (v) => playlist.list[v].name
+                          ),
+                        ])
+                      )
+                    );
+                  } else {
+                    downloadAll(
+                      Array.from(batchSet).map((v) => playlist.list[v].name)
+                    );
+                  }
+                }}
+              >
+                下载
+              </Button>
+              <Button
+                onClick={() => {
+                  setPlaylist((old) => PlaylistHelper.removeAll(old, batchSet));
+                  setBatchSet(new Set());
+                }}
+              >
+                移出歌单
+              </Button>
+            </ButtonGroup>
+          </>
+        ) : null}
+        {!batch && playlist.cur !== -1 ? (
+          <Typography variant={size ? "body1" : "body2"}>{`当前${
+            playlist.cur + 1
+          }/${playlist.list.length}`}</Typography>
+        ) : null}
+      </Toolbar>
       <AutoSizer>
         {({ height, width }) => (
           <FixedSizeList
             itemSize={48}
             itemCount={playlist.list.length}
-            height={height}
+            height={height-64}
             width={width}
             outerElementType={List}
             itemData={{
@@ -109,6 +229,7 @@ export function Playlist() {
               ) => {
                 open(target, index);
               },
+              batch,
             }}
           >
             {Row}
@@ -150,9 +271,6 @@ export function Playlist() {
               return;
             }
             download(playlist.list[menuState.index].name);
-            // setDownloadListState((old) =>
-            //   DownloadListHelper.add(old, playlist.list[menuState.index])
-            // );
           }}
         >
           <ListItemIcon>

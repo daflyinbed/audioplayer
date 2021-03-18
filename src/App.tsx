@@ -11,6 +11,8 @@ import {
   Menu,
   MenuItem,
   Theme,
+  useMediaQuery,
+  useTheme,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core";
 import { AppBar, CssBaseline, Toolbar } from "@material-ui/core";
@@ -101,6 +103,8 @@ function App(props: { data: string[] }) {
   const [searchResult, setSearchResult] = useState<string[]>([]);
   const [isFuzzy, setIsFuzzy] = useState(false);
   const [isCaseSen, setIsCaseSen] = useState(false);
+  const theme = useTheme();
+  const md = useMediaQuery(theme.breakpoints.up("md"));
   const {
     states: [filterMenuState],
     open: openFilterMenu,
@@ -165,15 +169,25 @@ function App(props: { data: string[] }) {
         </Toolbar>
       </AppBar>
       <Toolbar />
+
       <Grid container className={classes.container}>
-        <Grid md={6} xs={12} item className={classes.list}>
-          <SearchList list={searchResult} len={props.data.length} />
-        </Grid>
-        <Grid md={6} xs={12} item className={classes.list}>
-          <Playlist />
-        </Grid>
+        {md ? (
+          <>
+            <Grid md={6} xs={12} item className={classes.list}>
+              <SearchList list={searchResult} len={props.data.length} />
+            </Grid>
+            <Grid md={6} xs={12} item className={classes.list}>
+              <Playlist />
+            </Grid>
+          </>
+        ) : (
+          <SearchList
+            className={classes.list}
+            list={searchResult}
+            len={props.data.length}
+          />
+        )}
       </Grid>
-      <Toolbar />
       <AppBar position="fixed" className={classes.bottomAppBar}>
         <WidePlayerBar />
       </AppBar>

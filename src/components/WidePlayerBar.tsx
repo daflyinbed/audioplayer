@@ -21,7 +21,7 @@ import { Grid } from "@material-ui/core";
 import { random, sec2str } from "../utils";
 import { VolControl } from "./VolControl";
 import { useSensor } from "../hooks/useSensor";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { Order, PlayOrderState } from "../atoms/order";
 import { PlaylistHelper, PlaylistState } from "../atoms/playlist";
 import {
@@ -194,13 +194,16 @@ function ProcessSlider() {
 export function WidePlayerBar() {
   const classes = useStyles();
   const [playlist, setPlaylist] = useRecoilState(PlaylistState);
-  const setAudioState = useSetRecoilState(AudioState);
+  const [as, setAudioState] = useRecoilState(AudioState);
   const prevSrcRef = useRef<null | string>(null);
+  console.log("wide player bar", playlist);
+  console.log("wide player bar", as);
   useEffect(() => {
     if (
       playlist.list[playlist.cur] === null ||
       playlist.list[playlist.cur] === undefined
     ) {
+      prevSrcRef.current = null;
       return;
     }
     if (prevSrcRef.current === playlist.list[playlist.cur].src) {

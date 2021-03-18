@@ -68,9 +68,10 @@ function Row(props: ListChildComponentProps) {
             return set;
           });
         } else {
-          setPlaylist((old) =>
-            PlaylistHelper.insertAndJump(old, list[index], old.cur + 1)
-          );
+          setPlaylist((old) => {
+            console.log(old);
+            return PlaylistHelper.insertAndJump(old, list[index], old.cur + 1);
+          });
         }
       }}
     >
@@ -103,7 +104,11 @@ function Row(props: ListChildComponentProps) {
   );
 }
 
-export function SearchList(props: { list: string[]; len: number }) {
+export function SearchList(props: {
+  list: string[];
+  len: number;
+  className?: string;
+}) {
   const classes = useStyles();
   const { list, len } = props;
   const setPlaylist = useSetRecoilState(PlaylistState);
@@ -128,7 +133,7 @@ export function SearchList(props: { list: string[]; len: number }) {
     }
   }, [batch, setBatchSet]);
   return (
-    <div className={classes.root}>
+    <div className={classes.root + " " + (props.className || "")}>
       <Toolbar className={classes.toolbar}>
         <FormControlLabel
           control={
@@ -214,7 +219,7 @@ export function SearchList(props: { list: string[]; len: number }) {
           <FixedSizeList
             itemSize={48}
             itemCount={list.length}
-            height={height}
+            height={height-64}
             width={width}
             outerElementType={List}
             itemData={{
@@ -280,12 +285,6 @@ export function SearchList(props: { list: string[]; len: number }) {
               return;
             }
             download(list[menuState.index]);
-            // setDownloadListState((old) =>
-            //   DownloadListHelper.add(old, {
-            //     name: list[menuState.index],
-            //     src: buildSrc(list[menuState.index]),
-            //   })
-            // );
           }}
         >
           <ListItemIcon>
