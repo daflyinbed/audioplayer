@@ -17,13 +17,11 @@ import {
   useTheme,
 } from "@material-ui/core";
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
-import PlayNextIcon from "@material-ui/icons/SlowMotionVideo";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { FixedSizeList, ListChildComponentProps } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
 import React, { useEffect, useState } from "react";
 import GetAppIcon from "@material-ui/icons/GetApp";
-import AddIcon from "@material-ui/icons/Add";
 import { useMenu } from "../hooks/useMenu";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { PlaylistHelper, PlaylistState } from "../atoms/playlist";
@@ -31,6 +29,8 @@ import { PlaylistHelper, PlaylistState } from "../atoms/playlist";
 import { download, downloadAll } from "../utils";
 import { BatchSearchSet } from "../atoms/batchlist";
 import { DownloadListState, DownloadListOpen } from "../atoms/downloadList";
+import PlaylistPlayIcon from "@material-ui/icons/PlaylistPlay";
+import PlaylistAddIcon from "@material-ui/icons/PlaylistAdd";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -42,6 +42,7 @@ const useStyles = makeStyles((theme: Theme) =>
     toolbar: {
       display: "flex",
       justifyContent: "space-between",
+      backgroundColor: theme.palette.background.default,
     },
   })
 );
@@ -89,7 +90,7 @@ function Row(props: ListChildComponentProps) {
               );
             }}
           >
-            <PlayNextIcon></PlayNextIcon>
+            <PlaylistPlayIcon />
           </IconButton>
         ) : null}
         <IconButton
@@ -219,7 +220,7 @@ export function SearchList(props: {
           <FixedSizeList
             itemSize={48}
             itemCount={list.length}
-            height={height-64}
+            height={height - (xs ? 64 : 98)}
             width={width}
             outerElementType={List}
             itemData={{
@@ -258,7 +259,7 @@ export function SearchList(props: {
             }}
           >
             <ListItemIcon>
-              <PlayNextIcon />
+              <PlaylistPlayIcon />
             </ListItemIcon>
             <Typography>下一首播放</Typography>
           </MenuItem>
@@ -274,7 +275,7 @@ export function SearchList(props: {
           }}
         >
           <ListItemIcon>
-            <AddIcon />
+            <PlaylistAddIcon />
           </ListItemIcon>
           <Typography>加入歌单</Typography>
         </MenuItem>

@@ -25,10 +25,12 @@ import { matchSorter } from "match-sorter";
 import { useDebounce } from "./hooks/useDebounce ";
 import { SearchList } from "./components/SearchList";
 import { Playlist } from "./components/Playlist";
-import { useSensor } from "./hooks/useSensor";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { useMenu } from "./hooks/useMenu";
+import QueueMusicIcon from "@material-ui/icons/QueueMusic";
 import { DownloadDialog } from "./components/DownloadDialog";
+import { NarrowPlayerBar } from "./components/NarrowPlayerBar";
+import { usePlayList } from "./hooks/usePlayList";
 // import GetAppIcon from "@material-ui/icons/GetApp";
 // import { DownloadList } from "./components/DownloadList";
 const useStyles = makeStyles((theme: Theme) => {
@@ -83,13 +85,13 @@ const useStyles = makeStyles((theme: Theme) => {
       marginLeft: 0,
       flexShrink: 0,
     },
-    // fabButton: {
-    //   position: "absolute",
-    //   zIndex: 1,
-    //   bottom: theme.spacing(8),
-    //   right: theme.spacing(4),
-    //   margin: "0 auto",
-    // },
+    fabButton: {
+      position: "absolute",
+      zIndex: 1,
+      bottom: theme.spacing(16),
+      right: theme.spacing(4),
+      margin: "0 auto",
+    },
     // dialog: {
     //   height: "100%",
     // },
@@ -105,12 +107,14 @@ function App(props: { data: string[] }) {
   const [isCaseSen, setIsCaseSen] = useState(false);
   const theme = useTheme();
   const md = useMediaQuery(theme.breakpoints.up("md"));
+  const sm = useMediaQuery(theme.breakpoints.up("sm"));
+  usePlayList();
   const {
     states: [filterMenuState],
     open: openFilterMenu,
     close: closeFilterMenu,
   } = useMenu();
-  // const [openDialog, setOpenDialog] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   const searchCB = useCallback(() => {
     if (isFuzzy) {
       console.log("fuzzy search", search);
@@ -169,7 +173,6 @@ function App(props: { data: string[] }) {
         </Toolbar>
       </AppBar>
       <Toolbar />
-
       <Grid container className={classes.container}>
         {md ? (
           <>
@@ -189,7 +192,7 @@ function App(props: { data: string[] }) {
         )}
       </Grid>
       <AppBar position="fixed" className={classes.bottomAppBar}>
-        <WidePlayerBar />
+        {sm ? <WidePlayerBar /> : <NarrowPlayerBar />}
       </AppBar>
       <Menu
         anchorEl={filterMenuState.anchor}
@@ -233,27 +236,24 @@ function App(props: { data: string[] }) {
           ></FormControlLabel>
         </MenuItem>
       </Menu>
-      {/* <Fab
-        className={classes.fabButton}
-        onClick={() => {
-          setOpenDialog(true);
-        }}
-      >
-        <GetAppIcon />
-      </Fab>
-      <Dialog
-        onClose={() => {
-          setOpenDialog(false);
-        }}
-        fullWidth
-        maxWidth="md"
-        aria-labelledby="simple-dialog-title"
-        open={openDialog}
-        classes={{ paper: classes.dialog }}
-        className={classes.dialog}
-      >
-        <DownloadList />
-      </Dialog> */}
+      {!md ? (
+        <Fab
+          className={classes.fabButton}
+          onClick={() => {
+            setOpenDialog(true);
+          }}
+        >
+          <QueueMusicIcon />
+        </Fab>
+      ) : null}
+      <Dialog fullScreen open={!md && openDialog}>
+        <Playlist
+          isDialog={true}
+          onClose={() => {
+            setOpenDialog(false);
+          }}
+        />
+      </Dialog>
       <DownloadDialog />
     </div>
   );

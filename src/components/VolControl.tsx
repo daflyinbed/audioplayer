@@ -10,7 +10,7 @@ import {
   Theme,
 } from "@material-ui/core";
 import { useRecoilState } from "recoil";
-import { VolState, MuteState,HowlHelper } from "../atoms/audio";
+import { VolState, MuteState, HowlHelper } from "../atoms/audio";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     volume: {
@@ -19,14 +19,16 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
-export function VolControl() {
+export function VolControl(props: { small?: boolean }) {
   const classes = useStyles();
   const [volState, setVolState] = useRecoilState(VolState);
   const [muteState, setMuteState] = useRecoilState(MuteState);
+  let small = props.small;
   return (
     <>
       <IconButton
         color="inherit"
+        size={small ? "small" : "medium"}
         onClick={() => {
           HowlHelper.mute(!muteState);
           setMuteState((old) => !old);

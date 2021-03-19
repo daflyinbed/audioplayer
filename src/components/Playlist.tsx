@@ -25,6 +25,7 @@ import { FixedSizeList, ListChildComponentProps } from "react-window";
 import ClearIcon from "@material-ui/icons/Clear";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import GetAppIcon from "@material-ui/icons/GetApp";
+import CloseIcon from "@material-ui/icons/Close";
 import React, { useState } from "react";
 import { useMenu } from "../hooks/useMenu";
 import { useRecoilState, useSetRecoilState } from "recoil";
@@ -45,6 +46,7 @@ const useStyles = makeStyles((theme: Theme) =>
     toolbar: {
       display: "flex",
       justifyContent: "space-between",
+      backgroundColor: theme.palette.background.default,
     },
   })
 );
@@ -108,7 +110,7 @@ function Row(props: ListChildComponentProps) {
     </ListItem>
   );
 }
-export function Playlist() {
+export function Playlist(props: { isDialog?: boolean; onClose?: () => void }) {
   const [playlist, setPlaylist] = useRecoilState(PlaylistState);
   const classes = useStyles();
   const theme = useTheme();
@@ -125,100 +127,101 @@ export function Playlist() {
     open,
     close,
   } = useMenu();
+  const Tool = () => (
+    <Toolbar className={classes.toolbar}>
+      {props.isDialog ? (
+        <IconButton edge="start" onClick={props.onClose} aria-label="close">
+          <CloseIcon />
+        </IconButton>
+      ) : null}
+      <FormControlLabel
+        control={
+          <Checkbox
+            onClick={() => {
+              setBatch(!batch);
+            }}
+            checked={batch}
+          ></Checkbox>
+        }
+        label={<Typography variant={size ? "body1" : "body2"}>批量</Typography>}
+      ></FormControlLabel>
+      {batch ? (
+        <>
+          <ButtonGroup
+            size={size ? "small" : "medium"}
+            variant="text"
+            aria-label="text primary button group"
+          >
+            <Button
+              onClick={() => {
+                let set = new Set<number>();
+                playlist.list.forEach((v, i) => {
+                  set.add(i);
+                });
+                setBatchSet(set);
+              }}
+            >
+              全选
+            </Button>
+            <Button
+              onClick={() => {
+                setBatchSet(new Set());
+              }}
+            >
+              清除
+            </Button>
+          </ButtonGroup>
+          <ButtonGroup size={size ? "small" : "medium"} variant="text">
+            <Button
+              onClick={() => {
+                if (batchSet.size > 5) {
+                  setDownloadListOpen(true);
+                  setDownloadList((old) =>
+                    Array.from(
+                      new Set([
+                        ...old,
+                        ...Array.from(batchSet).map(
+                          (v) => playlist.list[v].name
+                        ),
+                      ])
+                    )
+                  );
+                } else {
+                  downloadAll(
+                    Array.from(batchSet).map((v) => playlist.list[v].name)
+                  );
+                }
+              }}
+            >
+              下载
+            </Button>
+            <Button
+              onClick={() => {
+                setPlaylist((old) => PlaylistHelper.removeAll(old, batchSet));
+                setBatchSet(new Set());
+              }}
+            >
+              移出歌单
+            </Button>
+          </ButtonGroup>
+        </>
+      ) : null}
+      {!batch && playlist.cur !== -1 ? (
+        <Typography variant={size ? "body1" : "body2"}>{`当前${
+          playlist.cur + 1
+        }/${playlist.list.length}`}</Typography>
+      ) : null}
+    </Toolbar>
+  );
   return (
     <div className={classes.root}>
-      <Toolbar className={classes.toolbar}>
-        <FormControlLabel
-          control={
-            <Checkbox
-              onClick={() => {
-                setBatch(!batch);
-              }}
-              checked={batch}
-            ></Checkbox>
-          }
-          label={
-            <Typography variant={size ? "body1" : "body2"}>批量</Typography>
-          }
-        ></FormControlLabel>
-        {batch ? (
-          <>
-            <ButtonGroup
-              size={size ? "small" : "medium"}
-              variant="text"
-              color="primary"
-              aria-label="text primary button group"
-            >
-              <Button
-                onClick={() => {
-                  let set = new Set<number>();
-                  playlist.list.forEach((v, i) => {
-                    set.add(i);
-                  });
-                  setBatchSet(set);
-                }}
-              >
-                全选
-              </Button>
-              <Button
-                onClick={() => {
-                  setBatchSet(new Set());
-                }}
-              >
-                清除
-              </Button>
-            </ButtonGroup>
-            <ButtonGroup
-              size={size ? "small" : "medium"}
-              variant="text"
-              color="primary"
-            >
-              <Button
-                onClick={() => {
-                  if (batchSet.size > 5) {
-                    setDownloadListOpen(true);
-                    setDownloadList((old) =>
-                      Array.from(
-                        new Set([
-                          ...old,
-                          ...Array.from(batchSet).map(
-                            (v) => playlist.list[v].name
-                          ),
-                        ])
-                      )
-                    );
-                  } else {
-                    downloadAll(
-                      Array.from(batchSet).map((v) => playlist.list[v].name)
-                    );
-                  }
-                }}
-              >
-                下载
-              </Button>
-              <Button
-                onClick={() => {
-                  setPlaylist((old) => PlaylistHelper.removeAll(old, batchSet));
-                  setBatchSet(new Set());
-                }}
-              >
-                移出歌单
-              </Button>
-            </ButtonGroup>
-          </>
-        ) : null}
-        {!batch && playlist.cur !== -1 ? (
-          <Typography variant={size ? "body1" : "body2"}>{`当前${
-            playlist.cur + 1
-          }/${playlist.list.length}`}</Typography>
-        ) : null}
-      </Toolbar>
+      <Tool />
       <AutoSizer>
         {({ height, width }) => (
           <FixedSizeList
             itemSize={48}
             itemCount={playlist.list.length}
-            height={height-64}
+            height={height - 64}
             width={width}
             outerElementType={List}
             itemData={{
