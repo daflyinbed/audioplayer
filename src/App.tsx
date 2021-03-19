@@ -100,7 +100,6 @@ const useStyles = makeStyles((theme: Theme) => {
 
 function App(props: { data: string[] }) {
   const classes = useStyles();
-  console.log("re render");
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState<string[]>([]);
   const [isFuzzy, setIsFuzzy] = useState(false);
@@ -117,10 +116,8 @@ function App(props: { data: string[] }) {
   const [openDialog, setOpenDialog] = useState(false);
   const searchCB = useCallback(() => {
     if (isFuzzy) {
-      console.log("fuzzy search", search);
       setSearchResult(matchSorter(props.data, search));
     } else {
-      console.log("search", search);
       if (isCaseSen) {
         setSearchResult(props.data.filter((v) => v.includes(search)));
       } else {

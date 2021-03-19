@@ -172,7 +172,6 @@ export function ProcessSlider() {
       max={HowlHelper.getLen()}
       disabled={audioState === PlayerState.Idle}
       onChange={(_, v) => {
-        console.log(v);
         HowlHelper.process(v as number);
         setProcess(v as number);
         // audio.control({ type: PlayerAction.process, process: v as number });

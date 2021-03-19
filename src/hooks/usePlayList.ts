@@ -8,7 +8,6 @@ export function usePlayList() {
   const playlist = useRecoilValue(PlaylistState);
   const prevSrcRef = useRef<null | string>(null);
   const setAudioState = useSetRecoilState(AudioState);
-  console.log("playlist", playlist);
   useEffect(() => {
     if (
       playlist.list[playlist.cur] === null ||
@@ -21,7 +20,6 @@ export function usePlayList() {
       return;
     }
     prevSrcRef.current = playlist.list[playlist.cur].src;
-    console.log("src changed");
     HowlContainer.load(playlist.list[playlist.cur].src);
     setAudioState(PlayerState.Loading);
     HowlContainer.get()?.once("load", () => {

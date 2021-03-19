@@ -21,7 +21,6 @@ export function useMenu() {
             index: null,
           };
         case menuActionTypes.open:
-          console.log("open");
           return {
             anchor: action.anchor,
             index: action.index,

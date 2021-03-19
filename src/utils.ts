@@ -16,7 +16,6 @@ export function sec2str(len: number): string {
 }
 export function random(max: number) {
   let result = Math.floor(Math.random() * max);
-  console.log("random", result);
   return result;
 }
 export function download(name: string) {

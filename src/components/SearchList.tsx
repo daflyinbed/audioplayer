@@ -70,7 +70,6 @@ function Row(props: ListChildComponentProps) {
           });
         } else {
           setPlaylist((old) => {
-            console.log(old);
             return PlaylistHelper.insertAndJump(old, list[index], old.cur + 1);
           });
         }

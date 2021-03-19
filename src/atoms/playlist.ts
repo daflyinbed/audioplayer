@@ -73,7 +73,6 @@ function removeAll(old: playlistState, p: Set<number>): playlistState {
   };
 }
 function jump(old: playlistState, p: number): playlistState {
-  console.log("jump", p);
   return {
     ...old,
     cur: p,
