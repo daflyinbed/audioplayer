@@ -1,7 +1,6 @@
 import VolumeOffIcon from "@material-ui/icons/VolumeOff";
 import VolumeMuteIcon from "@material-ui/icons/VolumeMute";
 import VolumeUpIcon from "@material-ui/icons/VolumeUp";
-import React from "react";
 import {
   createStyles,
   IconButton,
@@ -10,7 +9,7 @@ import {
   Theme,
 } from "@material-ui/core";
 import { useRecoilState } from "recoil";
-import { VolState, MuteState, HowlHelper } from "../atoms/audio";
+import { VolState, MuteState } from "../atoms/audio";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     volume: {
@@ -30,9 +29,7 @@ export function VolControl(props: { small?: boolean }) {
         color="inherit"
         size={small ? "small" : "medium"}
         onClick={() => {
-          HowlHelper.mute(!muteState);
           setMuteState((old) => !old);
-          // audio.control({ type: PlayerAction.changeMute });
         }}
       >
         {muteState ? (
@@ -53,9 +50,7 @@ export function VolControl(props: { small?: boolean }) {
         max={100}
         step={1}
         onChange={(_, v) => {
-          HowlHelper.vol(v as number);
           setVolState(v as number);
-          // audio.control({ type: PlayerAction.changeVol, vol: v as number });
         }}
       />
     </>

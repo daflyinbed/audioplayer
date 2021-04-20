@@ -11,6 +11,7 @@ export function sec2str(len: number): string {
   if (len <= 0) {
     return "00:00";
   }
+  len = Math.trunc(len);
   let [m, s] = divmod(Math.floor(len), 60);
   return `${pad2(m)}:${pad2(s)}`;
 }

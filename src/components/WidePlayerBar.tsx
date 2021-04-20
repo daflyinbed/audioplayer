@@ -6,14 +6,13 @@ import {
   Typography,
   createStyles,
 } from "@material-ui/core";
-import React from "react";
 import { Grid } from "@material-ui/core";
 import { VolControl } from "./VolControl";
 import { useRecoilState } from "recoil";
 import { PlaylistHelper, PlaylistState } from "../atoms/playlist";
 import SkipPreviousIcon from "@material-ui/icons/SkipPrevious";
 import SkipNextIcon from "@material-ui/icons/SkipNext";
-import { PlayButton, Process, ProcessSlider, PlayOrder } from "./AudioControls";
+import { PlayButton, ProcessText, ProcessSlider, PlayOrder } from "./AudioControls";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -56,7 +55,7 @@ export function WidePlayerBar() {
           <Typography variant="body2" color="inherit">
             {playlist.list[playlist.cur]?.name ?? ""}
           </Typography>
-          <Process />
+          <ProcessText />
         </Grid>
         <ProcessSlider />
       </Grid>

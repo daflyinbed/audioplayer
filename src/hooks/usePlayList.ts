@@ -1,13 +1,20 @@
 import { useRef, useEffect } from "react";
-import { useSetRecoilState, useRecoilValue } from "recoil";
-import { AudioState, PlayerState } from "../atoms/audio";
-import { PlaylistState } from "../atoms/playlist";
-import { HowlContainer } from "../audio";
+import {
+  useSetRecoilState,
+  useRecoilValue,
+  useRecoilState,
+} from "recoil";
+import { EndState, SrcState } from "../atoms/audio";
+import { Order, PlayOrderState } from "../atoms/order";
+import { PlaylistHelper, PlaylistState } from "../atoms/playlist";
+import { random } from "../utils";
 
 export function usePlayList() {
-  const playlist = useRecoilValue(PlaylistState);
+  const [playlist, setPlaylist] = useRecoilState(PlaylistState);
   const prevSrcRef = useRef<null | string>(null);
-  const setAudioState = useSetRecoilState(AudioState);
+  const setSrcState = useSetRecoilState(SrcState);
+  const [endState, setEndState] = useRecoilState(EndState);
+  const playOrderState = useRecoilValue(PlayOrderState);
   useEffect(() => {
     if (
       playlist.list[playlist.cur] === null ||
@@ -20,12 +27,34 @@ export function usePlayList() {
       return;
     }
     prevSrcRef.current = playlist.list[playlist.cur].src;
-    HowlContainer.load(playlist.list[playlist.cur].src);
-    setAudioState(PlayerState.Loading);
-    HowlContainer.get()?.once("load", () => {
-      HowlContainer.get()?.play();
-      setAudioState(PlayerState.Playing);
-    });
-    HowlContainer.get()?.load();
-  }, [playlist.cur, playlist.list, setAudioState]);
+    setSrcState(playlist.list[playlist.cur].src);
+  }, [playlist.cur, playlist.list, setSrcState]);
+  useEffect(() => {
+    if (!endState) {
+      return;
+    }
+    setEndState(false);
+    switch (playOrderState) {
+      case Order.all:
+        if (playlist.list.length === 1) {
+          return;
+        }
+        setPlaylist((old) =>
+          PlaylistHelper.jump(
+            old,
+            old.cur + 1 < old.list.length ? old.cur + 1 : 0
+          )
+        );
+        break;
+      case Order.random:
+        setPlaylist((old) => PlaylistHelper.jump(old, random(old.list.length)));
+        break;
+    }
+  }, [
+    endState,
+    playOrderState,
+    playlist.list.length,
+    setEndState,
+    setPlaylist,
+  ]);
 }

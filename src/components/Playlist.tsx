@@ -31,8 +31,8 @@ import { useMenu } from "../hooks/useMenu";
 import { useRecoilState, useSetRecoilState } from "recoil";
 // import { DownloadListHelper, DownloadListState } from "../atoms/downloadList";
 import { download, downloadAll } from "../utils";
-import { AudioState, PlayerState } from "../atoms/audio";
-import { HowlContainer } from "../audio";
+// import { AudioState, PlayerState } from "../atoms/audio";
+// import { HowlContainer } from "../audio";
 import { BatchPlaySet } from "../atoms/batchlist";
 import { DownloadListState, DownloadListOpen } from "../atoms/downloadList";
 
@@ -52,7 +52,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 function Row(props: ListChildComponentProps) {
   const [playlist, setPlaylist] = useRecoilState(PlaylistState);
-  const setAudioState = useSetRecoilState(AudioState);
+  // const setAudioState = useSetRecoilState(AudioState);
   const { index, style, data } = props;
   const batch: boolean = data.batch;
   const [batchSet, setBatchSet] = useRecoilState(BatchPlaySet);
@@ -90,8 +90,8 @@ function Row(props: ListChildComponentProps) {
           <IconButton
             onClick={(e) => {
               if (index === playlist.cur) {
-                HowlContainer.unload();
-                setAudioState(PlayerState.Idle);
+                // HowlContainer.unload();
+                // setAudioState(PlayerState.Idle);
               }
               setPlaylist((old) => PlaylistHelper.remove(old, index));
             }}

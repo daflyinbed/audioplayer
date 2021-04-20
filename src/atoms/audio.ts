@@ -1,14 +1,37 @@
 import { atom } from "recoil";
-import { HowlContainer } from "../audio";
-export enum PlayerState {
+export interface BufferedDuration {
+  start: number;
+  end: number;
+}
+export enum LoadEnum {
   Idle,
   Loading,
-  Playing,
-  Paused,
+  CanPlay, //浏览器已经可以播放媒体，但是预测已加载的数据不足以在不暂停的情况下顺利将其播放到结尾（即预测会在播放时暂停以获取更多的缓冲区内容）
+  Err,
 }
-export const AudioState = atom({
-  key: "audioState",
-  default: PlayerState.Idle,
+export const SrcState = atom({
+  key: "srcState",
+  default: "",
+});
+//已经加载的区间
+export const BufferedDurationState = atom<BufferedDuration[]>({
+  key: "bufferedDurationState",
+  default: [],
+});
+
+//总长度
+export const DurationState = atom({
+  key: "audioDuration",
+  default: -1,
+});
+export const LoadState = atom({
+  key: "loadState",
+  default: LoadEnum.Idle,
+});
+
+export const PlayState = atom({
+  key: "playState",
+  default: false,
 });
 export const VolState = atom({
   key: "volState",
@@ -18,79 +41,19 @@ export const MuteState = atom({
   key: "muteState",
   default: false,
 });
-// export const LoopState = atom({
-//   key: "loopState",
-//   default: false,
-// });
-export const ProcessState = atom({
-  key: "processState",
+export const LoopState = atom({
+  key: "loopState",
+  default: false,
+});
+export const CurTimeState = atom({
+  key: "curTimeState",
   default: 0,
 });
-function getLen() {
-  return HowlContainer.get()?.duration() || 0;
-}
-function play() {
-  let howl = HowlContainer.get();
-  if (!howl) {
-    return;
-  }
-  howl.play();
-}
-function pause() {
-  let howl = HowlContainer.get();
-  if (!howl) {
-    return;
-  }
-  howl.pause();
-}
-function vol(vol: number) {
-  let howl = HowlContainer.get();
-  if (!howl) {
-    return;
-  }
-  howl.volume(vol / 100);
-}
-function mute(isMute: boolean) {
-  let howl = HowlContainer.get();
-  if (!howl) {
-    return;
-  }
-  howl.mute(isMute);
-}
-function loop(isLoop: boolean) {
-  let howl = HowlContainer.get();
-  if (!howl) {
-    return;
-  }
-  if (isLoop) {
-    howl.off("end");
-  }
-  howl.loop(isLoop);
-}
-function process(process: number) {
-  let howl = HowlContainer.get();
-  if (!howl) {
-    return;
-  }
-  howl.seek(process);
-}
-function changeCB(cb: () => void) {
-  let howl = HowlContainer.get();
-  if (!howl) {
-    return;
-  }
-  howl.loop(false);
-  howl.off("end");
-  howl.on("end", cb);
-}
-const HowlHelper = {
-  getLen,
-  play,
-  pause,
-  process,
-  vol,
-  mute,
-  loop,
-  changeCB,
-};
-export { HowlHelper };
+export const SeekState = atom({
+  key: "seekState",
+  default: 0,
+});
+export const EndState = atom({
+  key: "endState",
+  default: false,
+});

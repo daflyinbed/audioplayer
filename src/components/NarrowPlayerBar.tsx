@@ -13,7 +13,7 @@ import { Grid } from "@material-ui/core";
 import { VolControl } from "./VolControl";
 import { useRecoilState } from "recoil";
 import { PlaylistHelper, PlaylistState } from "../atoms/playlist";
-import { PlayButton, Process, ProcessSlider, PlayOrder } from "./AudioControls";
+import { PlayButton, ProcessText, ProcessSlider, PlayOrder } from "./AudioControls";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -22,9 +22,6 @@ const useStyles = makeStyles((theme: Theme) =>
       maxWidth: 1400,
       flexDirection: "column",
     },
-    // controller: {
-    //   flexGrow: 1,
-    // },
   })
 );
 export function NarrowPlayerBar() {
@@ -61,7 +58,7 @@ export function NarrowPlayerBar() {
         <Typography variant="body2" color="inherit">
           {playlist.list[playlist.cur]?.name ?? ""}
         </Typography>
-        <Process />
+        <ProcessText />
       </Grid>
       <ProcessSlider />
     </Toolbar>

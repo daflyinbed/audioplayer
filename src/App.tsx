@@ -31,6 +31,8 @@ import QueueMusicIcon from "@material-ui/icons/QueueMusic";
 import { DownloadDialog } from "./components/DownloadDialog";
 import { NarrowPlayerBar } from "./components/NarrowPlayerBar";
 import { usePlayList } from "./hooks/usePlayList";
+import { useAudio } from "./hooks/useAudio";
+// import {useAudio} from 'react-use';
 // import GetAppIcon from "@material-ui/icons/GetApp";
 // import { DownloadList } from "./components/DownloadList";
 const useStyles = makeStyles((theme: Theme) => {
@@ -107,7 +109,9 @@ function App(props: { data: string[] }) {
   const theme = useTheme();
   const md = useMediaQuery(theme.breakpoints.up("md"));
   const sm = useMediaQuery(theme.breakpoints.up("sm"));
+  useAudio();
   usePlayList();
+  // const [audio, state, controls] = useAudio({src:""});
   const {
     states: [filterMenuState],
     open: openFilterMenu,
@@ -139,6 +143,7 @@ function App(props: { data: string[] }) {
   return (
     <div style={{ height: "100%" }}>
       <CssBaseline />
+      {/* {AudioEle} */}
       <AppBar position="absolute">
         <Toolbar classes={{ root: classes.toolbar }}>
           <div className={classes.search}>
