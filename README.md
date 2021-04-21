@@ -4,7 +4,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## TODO
 - [x] 保存音量
-- [ ] 保存歌单
+- [x] 保存歌单
 - [ ] 分享歌单
 - [ ] 分享筛选
 

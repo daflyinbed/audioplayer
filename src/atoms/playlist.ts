@@ -1,7 +1,7 @@
 import { atom } from "recoil";
 import { buildSrc } from "../utils";
 
-interface playlistState {
+export interface playlistState {
   list: AudioMeta[];
   cur: number;
 }
