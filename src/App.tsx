@@ -32,6 +32,7 @@ import { DownloadDialog } from "./components/DownloadDialog";
 import { NarrowPlayerBar } from "./components/NarrowPlayerBar";
 import { usePlayList } from "./hooks/usePlayList";
 import { useAudio } from "./hooks/useAudio";
+import { useSaveState } from "./hooks/useSaveState";
 // import {useAudio} from 'react-use';
 // import GetAppIcon from "@material-ui/icons/GetApp";
 // import { DownloadList } from "./components/DownloadList";
@@ -111,6 +112,7 @@ function App(props: { data: string[] }) {
   const sm = useMediaQuery(theme.breakpoints.up("sm"));
   useAudio();
   usePlayList();
+  useSaveState();
   // const [audio, state, controls] = useAudio({src:""});
   const {
     states: [filterMenuState],
