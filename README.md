@@ -3,7 +3,7 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## TODO
-- [ ] 保存音量
+- [x] 保存音量
 - [ ] 保存歌单
 - [ ] 分享歌单
 - [ ] 分享筛选
@@ -15,7 +15,7 @@ In the project directory, you can run:
 ### `yarn start`
 
 Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Open [http://localhost](http://localhost) to view it in the browser.
 
 The page will reload if you make edits.\
 You will also see any lint errors in the console.
