@@ -15,9 +15,12 @@ export function sec2str(len: number): string {
   let [m, s] = divmod(Math.floor(len), 60);
   return `${pad2(m)}:${pad2(s)}`;
 }
-export function random(max: number) {
-  let result = Math.floor(Math.random() * max);
-  return result;
+export function random(max: number, ori: number) {
+  let result = Math.floor(Math.random() * (max - 1));
+  if (result < ori) {
+    return result;
+  }
+  return result + 1;
 }
 export function download(name: string) {
   let ele = document.createElement("a");

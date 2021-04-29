@@ -1,9 +1,5 @@
 import { useRef, useEffect } from "react";
-import {
-  useSetRecoilState,
-  useRecoilValue,
-  useRecoilState,
-} from "recoil";
+import { useSetRecoilState, useRecoilValue, useRecoilState } from "recoil";
 import { EndState, SrcState } from "../atoms/audio";
 import { Order, PlayOrderState } from "../atoms/order";
 import { PlaylistHelper, PlaylistState } from "../atoms/playlist";
@@ -47,7 +43,9 @@ export function usePlayList() {
         );
         break;
       case Order.random:
-        setPlaylist((old) => PlaylistHelper.jump(old, random(old.list.length)));
+        setPlaylist((old) =>
+          PlaylistHelper.jump(old, random(old.list.length, old.cur))
+        );
         break;
     }
   }, [
