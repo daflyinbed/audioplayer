@@ -1,5 +1,5 @@
 export function buildSrc(name: string): string {
-  return `http://dl.xwbx.ink/5424/${name}.mp3`;
+  return encodeHash(`http://dl.xwbx.ink/5424/${name}.mp3`);
 }
 function divmod(num: number, div: number): [number, number] {
   return [Math.floor(num / div), Math.floor(num % div)];
@@ -38,4 +38,7 @@ export function downloadAll(names: string[]) {
       clearInterval(interval);
     }
   }, 1000);
+}
+export function encodeHash(url: string) {
+  return url.replace("#", "%23");
 }

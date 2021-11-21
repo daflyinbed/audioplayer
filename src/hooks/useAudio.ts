@@ -15,6 +15,7 @@ import {
   SrcState,
   VolState,
 } from "../atoms/audio";
+import { encodeHash } from "../utils";
 
 function parseTimeRanges(ranges: TimeRanges) {
   const result: BufferedDuration[] = [];
@@ -204,6 +205,6 @@ export function useAudio() {
     if (!el) {
       return;
     }
-    el.src = srcState;
+    el.src = encodeHash(srcState);
   }, [srcState]);
 }
