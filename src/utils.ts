@@ -1,5 +1,5 @@
 export function buildSrc(name: string): string {
-  return encodeHash(`http://dl.xwbx.ink/5424/${name}.mp3`);
+  return encodeHash(`http://clesss.xwbx.ink/audio/${name}.mp3`);
 }
 function divmod(num: number, div: number): [number, number] {
   return [Math.floor(num / div), Math.floor(num % div)];

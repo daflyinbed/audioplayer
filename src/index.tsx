@@ -6,6 +6,14 @@ import { RecoilRoot } from "recoil";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 let data = JSON.parse(document.getElementById("data")?.innerHTML!!);
+let notification = [];
+try {
+  notification = JSON.parse(
+    document.getElementById("notification")?.innerHTML!!
+  );
+} catch (err) {
+  console.error(err);
+}
 const theme = createMuiTheme({
   palette: {
     secondary: { main: pink[300] },
@@ -15,7 +23,10 @@ ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <RecoilRoot>
-        <App data={data} />
+        <App
+          data={data}
+          notification={notification}
+        />
       </RecoilRoot>
     </ThemeProvider>
   </React.StrictMode>,

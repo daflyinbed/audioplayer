@@ -2,6 +2,8 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Note
+发布之前想的替换static/js -> audio/js
 ## TODO
 - [x] 保存音量
 - [x] 保存歌单

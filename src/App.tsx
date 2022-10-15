@@ -13,9 +13,18 @@ import {
   Theme,
   useMediaQuery,
   useTheme,
+  makeStyles,
+  AppBar,
+  CssBaseline,
+  Toolbar,
+  Badge,
+  Popover,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
 } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core";
-import { AppBar, CssBaseline, Toolbar } from "@material-ui/core";
+import NotificationsNoneIcon from "@material-ui/icons/NotificationsNone";
 import SearchIcon from "@material-ui/icons/Search";
 
 // import { useAudio } from "./hooks/useAudio";
@@ -37,6 +46,7 @@ import { useSaveState } from "./hooks/useSaveState";
 // import GetAppIcon from "@material-ui/icons/GetApp";
 // import { DownloadList } from "./components/DownloadList";
 const useStyles = makeStyles((theme: Theme) => {
+  console.log(theme.breakpoints);
   return createStyles({
     toolbar: {
       display: "flex",
@@ -95,13 +105,19 @@ const useStyles = makeStyles((theme: Theme) => {
       right: theme.spacing(4),
       margin: "0 auto",
     },
+    notification: {
+      maxWidth: theme.breakpoints.values.md,
+    },
     // dialog: {
     //   height: "100%",
     // },
   });
 });
 
-function App(props: { data: string[] }) {
+function App(props: {
+  data: string[];
+  notification: { title: string; content: string }[];
+}) {
   const classes = useStyles();
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState<string[]>([]);
@@ -113,6 +129,23 @@ function App(props: { data: string[] }) {
   useAudio();
   usePlayList();
   useSaveState();
+  const [notificationAnchorEl, setNotificationAnchorEl] =
+    useState<HTMLButtonElement | null>(null);
+  const [isNotificationVisible, setIsNotificationVisible] = useState(false);
+  const [lastSeenNotification, setLastSeenNotification] = useState(-1);
+  useEffect(() => {
+    try {
+      let result = parseInt(localStorage.getItem("lastSeenNotification")!);
+      if (!isNaN(result)) {
+        if (result > props.notification.length - 1) {
+          result = props.notification.length - 1;
+        }
+        setLastSeenNotification(result);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, [props.notification]);
   // const [audio, state, controls] = useAudio({src:""});
   const {
     states: [filterMenuState],
@@ -174,6 +207,59 @@ function App(props: { data: string[] }) {
           >
             <MoreVertIcon />
           </IconButton>
+          <IconButton
+            color="inherit"
+            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+              if (props.notification.length === 0) {
+                return;
+              }
+              setNotificationAnchorEl(event.currentTarget);
+              setIsNotificationVisible(true);
+              if (props.notification.length - lastSeenNotification - 1 === 0) {
+                return;
+              }
+              localStorage.setItem(
+                "lastSeenNotification",
+                (props.notification.length - 1).toString()
+              );
+              setLastSeenNotification(props.notification.length - 1);
+            }}
+          >
+            <Badge
+              color="error"
+              badgeContent={
+                props.notification.length - lastSeenNotification - 1
+              }
+            >
+              <NotificationsNoneIcon />
+            </Badge>
+          </IconButton>
+          <Popover
+            open={isNotificationVisible}
+            anchorEl={notificationAnchorEl}
+            onClose={() => {
+              setIsNotificationVisible(false);
+            }}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+          >
+            <List className={classes.notification}>
+              {props.notification.map((n) => (
+                <ListItem>
+                  <ListItemText
+                    primary={n.title}
+                    secondary={<p dangerouslySetInnerHTML={{__html:n.content}}></p>}
+                  ></ListItemText>
+                </ListItem>
+              ))}
+            </List>
+          </Popover>
         </Toolbar>
       </AppBar>
       <Toolbar />
